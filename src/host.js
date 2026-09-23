@@ -2,7 +2,7 @@
 // All side effects (data fetch, RPC, tools, timer) must live inside apply(ctx).
 
 return {
-  inject: ['timer', 'web', 'fs'],
+  inject: ['timer', 'web', 'fs', 'shell'],
   apply(ctx) {
     const DATA_REPO = 'https://raw.githubusercontent.com/202704948-design/astrbot_plugin_cet6/master';
     const EBBING = [12 * 3600, 24 * 3600, 2 * 86400, 4 * 86400, 7 * 86400, 15 * 86400];
@@ -340,10 +340,36 @@ return {
 
     // ===== Data loading =====
     async function fetchJSON(url) {
-      const r = await ctx.web.fetch({ url });
-      if (r.statusCode !== 200) throw new Error('HTTP ' + r.statusCode + ' for ' + url);
-      if (r.body.kind !== 'text' && r.body.kind !== 'html') throw new Error('Bad body kind');
-      return JSON.parse(r.body.content);
+      // ctx.web.fetch silently truncates large responses (~100KB cap), which breaks
+      // JSON parsing for the 3 MB vocab/reading files. Strategy:
+      //   1. Try web.fetch (fast, fine for small files like answers/listening).
+      //   2. If body is truncated or kind != text/html, fall back to shell.exec + curl
+      //      via ctx.shell, streaming the file to a workspace temp path. Then read it.
+      const filename = url.split('/').pop();
+      const tmpPath = '/cet6_tutor_dl_' + encodeURIComponent(filename) + '.json';
+      try {
+        const r = await ctx.web.fetch({ url });
+        if (r.statusCode === 200 && !r.truncated && (r.body.kind === 'text' || r.body.kind === 'html')) {
+          const text = r.body.content;
+          if (text && text.length > 1024) return JSON.parse(text);
+        }
+      } catch (e) { /* fall through to shell */ }
+      // Fallback: curl via shell
+      if (!ctx.shell) throw new Error('web.fetch truncated and shell unavailable');
+      const sh = ctx.shell;
+      const spec = sh.resolve({
+        command: 'curl',
+        args: ['-fsSL', '--max-time', '60', url, '-o', tmpPath]
+      });
+      const res = await sh.run(spec);
+      if (res.exitCode !== 0) throw new Error('curl failed (' + res.exitCode + '): ' + (res.stderr || ''));
+      const target = await ctx.fs.resolve(tmpPath);
+      const text = await ctx.fs.readText(target);
+      if (!text || text.length < 10) throw new Error('downloaded file is empty');
+      try { return JSON.parse(text); }
+      finally {
+        try { /* leave file in workspace for debug */ } catch (e) {}
+      }
     }
     async function loadAllData() {
       if (dataStatus.loaded) return;
