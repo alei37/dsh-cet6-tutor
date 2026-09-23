@@ -632,6 +632,12 @@ return {
           h('div', { style: { fontSize: 13, color: 'var(--fg-muted, #666)' } },
             '词库：' + (stats.dataStatus.vocabCount || 0) + ' 词 · 阅读：' + (stats.dataStatus.readingCount || 0) + ' 套 · 听力：' + (stats.dataStatus.listeningCount || 0) + ' 套'
           ),
+          (stats.dataStatus.readingMatchedCount || stats.dataStatus.readingMissingCount) && h('div', { style: { fontSize: 12, color: 'var(--fg-muted, #888)', marginTop: 6 } },
+            '📖 阅读：' + (stats.dataStatus.readingMatchedCount || 0) + ' 篇已匹配答案 · ' + (stats.dataStatus.readingMissingCount || 0) + ' 篇暂无答案（graceful）'
+          ),
+          (stats.dataStatus.listeningOverriddenCount || stats.dataStatus.listeningMp3RestoredCount || stats.dataStatus.listeningSanitizedCount) && h('div', { style: { fontSize: 12, color: 'var(--fg-muted, #888)', marginTop: 6 } },
+            '🎧 听力自动修复：' + (stats.dataStatus.listeningOverriddenCount || 0) + ' 套应用 Drhm1224 权威覆盖 · ' + (stats.dataStatus.listeningMp3RestoredCount || 0) + ' 套补回 MP3 · ' + (stats.dataStatus.listeningSanitizedCount || 0) + ' 套过滤垃圾答案'
+          ),
           stats.dataStatus.error && h('div', { className: 'cet6-msg error', style: { marginTop: 8 } }, '加载失败：' + stats.dataStatus.error),
           h('button', { className: 'cet6-btn secondary', style: { marginTop: 8 }, onClick: reload, disabled: busy }, '🔄 重新从 GitHub 拉取数据')
         ),
