@@ -56,6 +56,8 @@ return {
       mastered: Object.create(null),
       doneReadings: Object.create(null),
       doneListening: Object.create(null),
+      wrongReadings: Object.create(null), // {qId: {userAnswer, correct, score, right, total, detail, when}}
+      wrongListenings: Object.create(null), // {key: {userAnswer, correct, score, right, total, detail, when}}
       reminder: null
     };
 
@@ -330,12 +332,118 @@ return {
         mastered: Object.keys(U.mastered).map(w => ({ word: w, ...U.mastered[w] }))
       };
     }
+    // ===== New vocab APIs (UX upgrade) =====
+    function vocabStats() {
+      const reviewing = Object.keys(U.vocab).length;
+      const mastered = Object.keys(U.mastered).length;
+      const available = Math.max(0, vocabList.length - reviewing - mastered);
+      return {
+        total: vocabList.length,
+        reviewing,
+        mastered,
+        available
+      };
+    }
+    // Preview: pick N candidates WITHOUT saving. Caller can then commit.
+    function vocabPreview(count, opts) {
+      const want = Math.max(1, Math.min(100, Number(count) || 10));
+      const seen = new Set();
+      const candidates = [];
+      let attempts = 0;
+      const maxAttempts = want * 50;
+      while (candidates.length < want && attempts < maxAttempts) {
+        attempts++;
+        const idx = Math.floor(Math.random() * vocabList.length);
+        if (seen.has(idx)) continue;
+        seen.add(idx);
+        const w = vocabList[idx];
+        if (U.vocab[w] || U.mastered[w]) continue;
+        candidates.push({ word: w, meaning: vocab[w] || '' });
+      }
+      return candidates;
+    }
+    // Commit a list of specific words (already previewed by user).
+    function vocabCommit(words) {
+      const t = nowSec();
+      const added = [];
+      const skipped = [];
+      for (const raw of (words || [])) {
+        const w = String(raw).toLowerCase().trim();
+        if (!vocab[w]) { skipped.push({ word: w, reason: 'not_in_vocab' }); continue; }
+        if (U.vocab[w]) { skipped.push({ word: w, reason: 'already_reviewing' }); continue; }
+        if (U.mastered[w]) { skipped.push({ word: w, reason: 'already_mastered' }); continue; }
+        U.vocab[w] = { stage: 0, addTime: t, nextReview: t + EBBING[0] };
+        added.push({ word: w, meaning: vocab[w] });
+      }
+      if (added.length) saveUserState();
+      return { ok: true, added, skipped, addedCount: added.length, skippedCount: skipped.length };
+    }
+    // Search the user's pool (reviewing + mastered) by prefix/substring.
+    // mode: 'all' | 'reviewing' | 'mastered' | 'available'
+    // sortBy: 'stage' | 'nextReview' | 'recent' | 'word'
+    function vocabSearch(opts) {
+      opts = opts || {};
+      const q = (opts.query || '').toLowerCase().trim();
+      const mode = opts.mode || 'all';
+      const sortBy = opts.sortBy || 'stage';
+      const stageFilter = opts.stageFilter; // optional: array of stage numbers
+      let items = [];
+      if (mode === 'all' || mode === 'reviewing') {
+        for (const w of Object.keys(U.vocab)) {
+          if (q && !w.includes(q)) continue;
+          const it = U.vocab[w];
+          if (stageFilter && !stageFilter.includes(it.stage)) continue;
+          items.push({ word: w, pool: 'reviewing', stage: it.stage, nextReview: it.nextReview, addTime: it.addTime, meaning: vocab[w] || '', rank: RANKS[it.stage] });
+        }
+      }
+      if (mode === 'all' || mode === 'mastered') {
+        for (const w of Object.keys(U.mastered)) {
+          if (q && !w.includes(q)) continue;
+          const it = U.mastered[w];
+          if (stageFilter && !stageFilter.includes(6)) continue; // mastered = stage 6
+          items.push({ word: w, pool: 'mastered', stage: 6, nextReview: 0, addTime: it.graduatedTime, meaning: vocab[w] || it.meaning || '', rank: RANKS[6] });
+        }
+      }
+      // sort
+      items.sort((a, b) => {
+        if (sortBy === 'word') return a.word.localeCompare(b.word);
+        if (sortBy === 'nextReview') return a.nextReview - b.nextReview;
+        if (sortBy === 'recent') return (b.addTime || 0) - (a.addTime || 0);
+        return a.stage - b.stage; // default: stage ascending (earliest first)
+      });
+      return items;
+    }
+    // Wrong-answer book for reading
+    function getWrongReadings() {
+      return Object.keys(U.wrongReadings).map(qId => ({
+        qId,
+        ...U.wrongReadings[qId]
+      })).sort((a, b) => b.when - a.when);
+    }
+    function getWrongListenings() {
+      return Object.keys(U.wrongListenings).map(key => ({
+        key,
+        ...U.wrongListenings[key]
+      })).sort((a, b) => b.when - a.when);
+    }
 
     // ===== Reading engine =====
-    function readingDraw() {
-      const undone = readings.filter(r => !U.doneReadings[r.id]);
-      if (!undone.length) return { ok: false, msg: '已做完所有阅读真题！🎉' };
-      const r = undone[Math.floor(Math.random() * undone.length)];
+    function readingDraw(filter) {
+      // filter: 'all' | 'wrong' | 'undone'
+      let pool;
+      if (filter === 'wrong') {
+        pool = readings.filter(r => U.wrongReadings[r.id]);
+      } else if (filter === 'undone') {
+        pool = readings.filter(r => !U.doneReadings[r.id]);
+      } else {
+        pool = readings;
+      }
+      if (!pool.length) {
+        const msg = filter === 'wrong' ? '错题本是空的，去做点题吧！' :
+                     filter === 'undone' ? '已做完所有阅读真题！🎉' : '暂无阅读题';
+        return { ok: false, msg };
+      }
+      const r = pool[Math.floor(Math.random() * pool.length)];
       return {
         ok: true, id: r.id, meta: r.meta, type: r.type,
         passage: r.passage, questionNumbers: r.questionNumbers,
@@ -359,6 +467,24 @@ return {
         detail.push({ q: i + 1, user: u, correct: c, ok: hit });
       }
       U.doneReadings[qId] = nowSec();
+      // Track wrong answer history (only if score < 100)
+      if (right < correct.length) {
+        const r = readings.find(x => x.id === qId);
+        U.wrongReadings[qId] = {
+          userAnswer: ua,
+          correct,
+          score: Math.round((right / correct.length) * 100),
+          right,
+          total: correct.length,
+          detail,
+          when: nowSec(),
+          meta: r ? r.meta : null,
+          type: r ? r.type : null
+        };
+      } else {
+        // Got perfect — clear any prior wrong entry
+        delete U.wrongReadings[qId];
+      }
       saveUserState();
       return {
         ok: true, qId, right, total: correct.length,
@@ -375,9 +501,26 @@ return {
     }
 
     // ===== Listening engine =====
-    function listeningDraw() {
-      const keys = Object.keys(listenings).filter(k => !U.doneListening[k]);
-      if (!keys.length) return { ok: false, msg: '已做完所有听力真题！🎉' };
+    function listeningDraw(filter) {
+      // filter: 'all' | 'A' | 'B' | 'C' | 'wrong'
+      let keys = Object.keys(listenings);
+      if (filter === 'wrong') {
+        keys = keys.filter(k => U.wrongListenings[k]);
+      } else if (filter === 'A' || filter === 'B' || filter === 'C') {
+        // Filter by section presence: only return listening sets that have the requested section
+        keys = keys.filter(k => {
+          const l = listenings[k];
+          return l && l.sections && l.sections[filter] && l.sections[filter].questions && l.sections[filter].questions.length;
+        });
+      } else {
+        keys = keys.filter(k => !U.doneListening[k]);
+      }
+      if (!keys.length) {
+        const msg = filter === 'wrong' ? '听力错题本是空的' :
+                     ['A', 'B', 'C'].includes(filter) ? '没有 Section ' + filter + ' 的听力' :
+                     '已做完所有听力真题！🎉';
+        return { ok: false, msg };
+      }
       const k = keys[Math.floor(Math.random() * keys.length)];
       const l = listenings[k];
       return { ok: true, key: k, meta: l.meta, total: l.total, sections: l.sections, audioUrl: l.audioUrl, hasAnswers: !!l.answers };
@@ -399,6 +542,17 @@ return {
         detail.push({ q: parseInt(qNum), user: u, correct: c, ok: hit });
       }
       U.doneListening[key] = nowSec();
+      if (right < total) {
+        U.wrongListenings[key] = {
+          userAnswer: ua,
+          score: Math.round((right / total) * 100),
+          right, total, detail,
+          when: nowSec(),
+          meta: l.meta
+        };
+      } else {
+        delete U.wrongListenings[key];
+      }
       saveUserState();
       return { ok: true, key, right, total, score: Math.round((right / total) * 100), detail };
     }
@@ -435,6 +589,8 @@ return {
         if (obj.mastered) Object.assign(U.mastered, obj.mastered);
         if (obj.doneReadings) Object.assign(U.doneReadings, obj.doneReadings);
         if (obj.doneListening) Object.assign(U.doneListening, obj.doneListening);
+        if (obj.wrongReadings) Object.assign(U.wrongReadings, obj.wrongReadings);
+        if (obj.wrongListenings) Object.assign(U.wrongListenings, obj.wrongListenings);
         if (obj.reminder) U.reminder = obj.reminder;
       } catch (e) {}
     }
@@ -606,12 +762,18 @@ return {
     rpc('cet6/vocab/review', async (args) => vocabReview(args.limit || 20));
     rpc('cet6/vocab/new', async (args) => vocabNew(args.count || 10));
     rpc('cet6/vocab/list', async (args) => vocabGetList(args.mode || 'all'));
-    rpc('cet6/reading/draw', async () => readingDraw());
+    rpc('cet6/vocab/preview', async (args) => vocabPreview(args.count || 10, args));
+    rpc('cet6/vocab/commit', async (args) => vocabCommit(args.words || []));
+    rpc('cet6/vocab/stats', async () => vocabStats());
+    rpc('cet6/vocab/search', async (args) => vocabSearch(args || {}));
+    rpc('cet6/reading/draw', async (args) => readingDraw(args && args.filter));
     rpc('cet6/reading/grade', async (args) => readingGrade(args.qId, args.userAnswer));
     rpc('cet6/reading/check', async (args) => readingCheck(args.qId));
-    rpc('cet6/listening/draw', async () => listeningDraw());
+    rpc('cet6/reading/wrong', async () => getWrongReadings());
+    rpc('cet6/listening/draw', async (args) => listeningDraw(args && args.filter));
     rpc('cet6/listening/grade', async (args) => listeningGrade(args.key, args.userAnswer));
     rpc('cet6/listening/skip', async (args) => listeningSkip(args.key));
+    rpc('cet6/listening/wrong', async () => getWrongListenings());
     rpc('cet6/set-reminder', async (args) => setReminder(args.hour, args.minute));
 
     // Cleanup RPC disposers when plugin stops

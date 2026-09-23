@@ -14,13 +14,17 @@ return {
       .cet6-tab.active { color: var(--accent, #2563eb); border-bottom-color: var(--accent, #2563eb); font-weight: 600; }
       .cet6-card { background: var(--bg-elevated, #fafafa); border: 1px solid var(--border, #e2e2e2); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
       .cet6-card h3 { margin: 0 0 12px; font-size: 16px; color: var(--fg, #1a1a1a); }
-      .cet6-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 12px; }
-      .cet6-stat { background: var(--bg, white); border: 1px solid var(--border, #e2e2e2); border-radius: 8px; padding: 16px; text-align: center; }
-      .cet6-stat .num { font-size: 28px; font-weight: 700; color: var(--accent, #2563eb); line-height: 1; }
-      .cet6-stat .label { font-size: 12px; color: var(--fg-muted, #666); margin-top: 4px; }
+      .cet6-card .subtle { font-size: 12px; color: var(--fg-muted, #888); margin: -8px 0 12px; }
+      .cet6-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+      .cet6-stat { background: var(--bg, white); border: 1px solid var(--border, #e2e2e2); border-radius: 8px; padding: 12px 8px; text-align: center; transition: all .15s; }
+      .cet6-stat.clickable { cursor: pointer; }
+      .cet6-stat.clickable:hover { border-color: var(--accent, #2563eb); transform: translateY(-1px); }
+      .cet6-stat .num { font-size: 22px; font-weight: 700; color: var(--accent, #2563eb); line-height: 1; }
+      .cet6-stat .label { font-size: 11px; color: var(--fg-muted, #666); margin-top: 4px; }
       .cet6-stat.danger .num { color: #dc2626; }
       .cet6-stat.success .num { color: #16a34a; }
       .cet6-stat.warn .num { color: #ea580c; }
+      .cet6-stat.muted .num { color: var(--fg-muted, #999); }
       .cet6-passage { background: var(--bg-elevated, #fafafa); border: 1px solid var(--border, #e2e2e2); border-radius: 12px; padding: 20px; max-height: 360px; overflow-y: auto; white-space: pre-wrap; font-size: 14px; line-height: 1.7; color: var(--fg, #1a1a1a); margin-bottom: 16px; }
       .cet6-options { display: grid; gap: 8px; margin-bottom: 16px; }
       .cet6-opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px; background: var(--bg, white); border: 2px solid var(--border, #e2e2e2); border-radius: 8px; cursor: pointer; transition: all .15s; }
@@ -37,21 +41,39 @@ return {
       .cet6-btn.secondary { background: var(--bg-elevated, #fafafa); color: var(--fg, #1a1a1a); border: 1px solid var(--border, #e2e2e2); }
       .cet6-btn.danger { background: #dc2626; }
       .cet6-btn.success { background: #16a34a; }
+      .cet6-btn.warn { background: #ea580c; }
+      .cet6-btn.large { padding: 12px 24px; font-size: 15px; }
       .cet6-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
-      .cet6-flash { background: linear-gradient(135deg, var(--accent, #2563eb) 0%, #1d4ed8 100%); color: white; padding: 32px; border-radius: 16px; text-align: center; margin-bottom: 16px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; }
+      .cet6-flash { background: linear-gradient(135deg, var(--accent, #2563eb) 0%, #1d4ed8 100%); color: white; padding: 32px; border-radius: 16px; text-align: center; margin-bottom: 16px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; position: relative; }
       .cet6-flash .word { font-size: 48px; font-weight: 700; margin-bottom: 12px; }
       .cet6-flash .meaning { font-size: 18px; opacity: 0.95; line-height: 1.5; }
       .cet6-flash .stage { font-size: 13px; opacity: 0.8; margin-top: 12px; }
+      .cet6-flash .progress { position: absolute; top: 12px; left: 16px; right: 16px; display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: 0.85; }
+      .cet6-flash .progress .bar { flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+      .cet6-flash .progress .fill { height: 100%; background: white; transition: width .3s; }
+      .cet6-flash .progress .next { white-space: nowrap; font-size: 11px; }
       .cet6-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; background: var(--bg-elevated, #f0f0f0); color: var(--fg, #1a1a1a); margin-right: 4px; }
       .cet6-badge.accent { background: var(--accent, #2563eb); color: white; }
       .cet6-badge.success { background: #16a34a; color: white; }
       .cet6-badge.warn { background: #ea580c; color: white; }
-      .cet6-list { max-height: 320px; overflow-y: auto; }
-      .cet6-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border, #e2e2e2); }
+      .cet6-badge.danger { background: #dc2626; color: white; }
+      .cet6-badge.muted { background: var(--bg-elevated, #e5e5e5); color: var(--fg-muted, #888); }
+      .cet6-chip { display: inline-block; padding: 5px 12px; border-radius: 14px; font-size: 12px; background: var(--bg-elevated, #f0f0f0); color: var(--fg, #1a1a1a); cursor: pointer; transition: all .15s; border: 1px solid transparent; }
+      .cet6-chip:hover { background: var(--bg-hover, rgba(0,0,0,0.05)); }
+      .cet6-chip.active { background: var(--accent, #2563eb); color: white; }
+      .cet6-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+      .cet6-list { max-height: 420px; overflow-y: auto; }
+      .cet6-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border, #e2e2e2); gap: 8px; }
+      .cet6-list-item:hover { background: var(--bg-hover, rgba(0,0,0,0.02)); }
       .cet6-list-item .word { font-weight: 600; }
-      .cet6-list-item .meaning { color: var(--fg-muted, #666); font-size: 13px; }
-      .cet6-list-item .meta { font-size: 12px; color: var(--fg-muted, #666); }
+      .cet6-list-item .meaning { color: var(--fg-muted, #666); font-size: 13px; margin-top: 2px; }
+      .cet6-list-item .meta { font-size: 11px; color: var(--fg-muted, #888); margin-top: 4px; }
+      .cet6-list-item .actions { display: flex; gap: 4px; }
+      .cet6-list-item .icon-btn { background: transparent; border: none; cursor: pointer; font-size: 14px; padding: 4px 6px; border-radius: 4px; color: var(--fg-muted, #888); }
+      .cet6-list-item .icon-btn:hover { background: var(--bg-hover, rgba(0,0,0,0.05)); color: var(--fg, #1a1a1a); }
+      .cet6-list-item .icon-btn.danger:hover { color: #dc2626; }
       .cet6-empty { text-align: center; padding: 40px; color: var(--fg-muted, #999); }
+      .cet6-empty.small { padding: 20px; font-size: 13px; }
       .cet6-result { padding: 16px; border-radius: 12px; margin-bottom: 16px; }
       .cet6-result.good { background: rgba(22,163,74,0.08); border: 1px solid #16a34a; }
       .cet6-result.bad { background: rgba(220,38,38,0.08); border: 1px solid #dc2626; }
@@ -64,9 +86,26 @@ return {
       .cet6-section-header { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--bg-elevated, #f5f5f5); border-radius: 8px; margin-bottom: 8px; font-weight: 600; }
       .cet6-msg { padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
       .cet6-msg.info { background: rgba(37,99,235,0.08); color: #1d4ed8; }
+      .cet6-msg.warn { background: rgba(234,88,12,0.08); color: #9a3412; }
       .cet6-msg.error { background: rgba(220,38,38,0.08); color: #b91c1c; }
       .cet6-msg.success { background: rgba(22,163,74,0.08); color: #15803d; }
       .cet6-countdown { display: inline-block; padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%); color: white; font-weight: 600; font-size: 14px; }
+      .cet6-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0 16px; color: var(--fg-muted, #888); font-size: 12px; }
+      .cet6-divider::before, .cet6-divider::after { content: ''; flex: 1; height: 1px; background: var(--border, #e2e2e2); }
+      .cet6-preview-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg, white); border: 1px solid var(--border, #e2e2e2); border-radius: 8px; margin-bottom: 6px; gap: 12px; transition: all .15s; }
+      .cet6-preview-item:hover { border-color: var(--accent, #2563eb); }
+      .cet6-preview-item .info { flex: 1; min-width: 0; }
+      .cet6-preview-item .w { font-weight: 600; font-size: 14px; }
+      .cet6-preview-item .m { color: var(--fg-muted, #666); font-size: 12px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cet6-preview-item .x { background: transparent; border: none; color: var(--fg-muted, #999); cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 16px; line-height: 1; }
+      .cet6-preview-item .x:hover { background: rgba(220,38,38,0.08); color: #dc2626; }
+      .cet6-preview-item.removed { opacity: 0.4; }
+      .cet6-preview-item.removed .info { text-decoration: line-through; }
+      .cet6-pool { display: flex; gap: 4px; flex-wrap: wrap; padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
+      .cet6-pool .item { background: var(--bg-elevated, #f0f0f0); padding: 4px 10px; border-radius: 12px; color: var(--fg, #1a1a1a); }
+      .cet6-pool .item.removed { background: rgba(220,38,38,0.1); color: #b91c1c; text-decoration: line-through; }
+      .cet6-shortcut { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: var(--bg-elevated, #f0f0f0); font-size: 11px; color: var(--fg-muted, #666); }
+      .cet6-shortcut kbd { display: inline-block; padding: 2px 6px; background: var(--bg, white); border: 1px solid var(--border, #d0d0d0); border-radius: 4px; font-family: ui-monospace, monospace; font-size: 11px; color: var(--fg, #1a1a1a); }
     `;
     styles.insert(css);
 
@@ -85,29 +124,99 @@ return {
       const [dueQueue, setDueQueue] = React.useState([]);
       const [idx, setIdx] = React.useState(0);
       const [showMeaning, setShowMeaning] = React.useState(false);
-      const [customWord, setCustomWord] = React.useState('');
-      const [customResult, setCustomResult] = React.useState(null);
-      const [newCount, setNewCount] = React.useState(10);
-      const [listMode, setListMode] = React.useState('reviewing');
-      const [wordList, setWordList] = React.useState([]);
+      const [reviewFilter, setReviewFilter] = React.useState('all'); // all | fuzzy | vague
+      const [stats, setStats] = React.useState({ reviewing: 0, mastered: 0, available: 0, total: 0 });
+
+      // ---- New (进货) state ----
+      const [previewCount, setPreviewCount] = React.useState(10);
+      const [previewPool, setPreviewPool] = React.useState([]); // [{word, meaning, removed}]
+      const [manualWord, setManualWord] = React.useState('');
+      const [manualStatus, setManualStatus] = React.useState(null); // {state: 'none'|'in'|'reviewing'|'mastered'|'missing', word, meaning}
+      const [manualTimer, setManualTimer] = React.useState(null);
       const [busy, setBusy] = React.useState(false);
       const [msg, setMsg] = React.useState(null);
 
+      // ---- List (词库) state ----
+      const [listQuery, setListQuery] = React.useState('');
+      const [listMode, setListMode] = React.useState('all'); // all | reviewing | mastered
+      const [listSort, setListSort] = React.useState('stage'); // stage | nextReview | recent | word
+      const [listStage, setListStage] = React.useState(null); // null | stage number
+      const [listItems, setListItems] = React.useState([]);
+
+      const loadStats = async () => {
+        const r = await host.call('cet6/vocab/stats', {});
+        if (r) setStats(r);
+      };
       const loadDue = async () => {
-        const r = await host.call('cet6/vocab/review', { limit: 30 });
-        setDueQueue(r || []);
+        const r = await host.call('cet6/vocab/review', { limit: 50 });
+        const all = r || [];
+        const filtered = reviewFilter === 'fuzzy' ? all.filter(x => (x.stage || 0) <= 2)
+                         : reviewFilter === 'vague' ? all.filter(x => (x.stage || 0) <= 1)
+                         : all;
+        setDueQueue(filtered);
         setIdx(0);
         setShowMeaning(false);
       };
-
-      const loadList = async (m) => {
-        const r = await host.call('cet6/vocab/list', { mode: m });
-        if (m === 'reviewing') setWordList(r || []);
-        else if (m === 'mastered') setWordList(r || []);
-        setListMode(m);
+      const loadList = async () => {
+        const r = await host.call('cet6/vocab/search', { query: listQuery, mode: listMode, sortBy: listSort, stageFilter: listStage ? [listStage] : null });
+        setListItems(r || []);
       };
 
-      React.useEffect(() => { loadDue(); loadList('reviewing'); }, []);
+      React.useEffect(() => { loadStats(); }, []);
+      React.useEffect(() => { loadDue(); }, [reviewFilter]);
+      React.useEffect(() => { loadList(); }, [listQuery, listMode, listSort, listStage]);
+
+      // Keyboard shortcuts on review tab
+      React.useEffect(() => {
+        if (mode !== 'review') return;
+        const onKey = (e) => {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+          if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setShowMeaning(true); }
+          else if (e.key === '1' || e.key === 'y' || e.key === 'Y') { if (showMeaning) grade(true); }
+          else if (e.key === '2' || e.key === 'n' || e.key === 'N') { if (showMeaning) grade(false); }
+          else if (e.key === '3' || e.key === 'k' || e.key === 'K') { if (showMeaning) kill(); }
+          else if (e.key === 'ArrowLeft') { setIdx(i => Math.max(0, i - 1)); setShowMeaning(false); }
+          else if (e.key === 'ArrowRight') { setIdx(i => Math.min(dueQueue.length - 1, i + 1)); setShowMeaning(false); }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [mode, showMeaning, dueQueue, idx]);
+
+      // Debounced manual-word lookup as user types
+      React.useEffect(() => {
+        if (manualTimer) clearTimeout(manualTimer);
+        if (!manualWord.trim()) { setManualStatus(null); return; }
+        const t = setTimeout(async () => {
+          const w = manualWord.toLowerCase().trim();
+          const lookup = await host.call('cet6/vocab/lookup', { word: w });
+          if (!lookup || !lookup.ok) {
+            // Could be 'not_in_vocab' or 'already_reviewing/mastered' (returned by add path) — try add to find out
+            const addTry = await host.call('cet6/vocab/add', { word: w });
+            if (addTry && addTry.ok) {
+              setManualStatus({ state: 'addable', word: w, meaning: addTry.meaning });
+              // Roll back: we just added it unintentionally
+              await host.call('cet6/vocab/remove', { word: w });
+            } else {
+              const reason = (addTry && addTry.msg) || '';
+              const lookupMeaning = lookup && lookup.ok ? lookup.meaning : null;
+              if (reason.indexOf('已经在复习中') >= 0) setManualStatus({ state: 'reviewing', word: w, meaning: lookupMeaning });
+              else if (reason.indexOf('已掌握') >= 0) setManualStatus({ state: 'mastered', word: w, meaning: lookupMeaning });
+              else setManualStatus({ state: 'missing', word: w });
+            }
+            return;
+          }
+          // In vocab — check pool membership
+          const statsNow = await host.call('cet6/vocab/stats', {});
+          const list = await host.call('cet6/vocab/list', { mode: 'all' });
+          const inReview = (list.reviewing || []).some(x => x.word === w);
+          const inMaster = (list.mastered || []).some(x => x.word === w);
+          if (inReview) setManualStatus({ state: 'reviewing', word: w, meaning: lookup.meaning });
+          else if (inMaster) setManualStatus({ state: 'mastered', word: w, meaning: lookup.meaning });
+          else setManualStatus({ state: 'addable', word: w, meaning: lookup.meaning });
+        }, 280);
+        setManualTimer(t);
+        return () => clearTimeout(t);
+      }, [manualWord]);
 
       const grade = async (known) => {
         if (!dueQueue[idx]) return;
@@ -117,141 +226,291 @@ return {
         setBusy(false);
         if (r && r.ok) {
           if (r.graduated) {
-            setMsg({ kind: 'success', text: '🎉 ' + r.word + ' 已毕业！' });
-            // Remove from queue
+            setMsg({ kind: 'success', text: '🎉 ' + r.word + ' 已毕业！进入荣誉墙' });
             setDueQueue(d => d.filter((_, i) => i !== idx));
           } else if (r.demoted) {
-            setMsg({ kind: 'warn', text: '📉 ' + r.word + ' 降级至 ' + r.stage });
-            setIdx(Math.min(idx, dueQueue.length - 2));
-            setShowMeaning(false);
+            setMsg({ kind: 'warn', text: '📉 ' + r.word + ' 降级至 ' + r.stage + '，下次复习更短' });
           } else {
-            // Move to next
-            setIdx((idx + 1) % Math.max(1, dueQueue.length - 1));
-            setShowMeaning(false);
+            setMsg({ kind: 'success', text: '✓ ' + r.word + ' 升级到 ' + r.stage });
           }
+          setShowMeaning(false);
+          // Move to next
+          setDueQueue(d => {
+            if (r.graduated) return d;
+            return d;
+          });
+          if (!r.graduated) setIdx(Math.min(idx + 1, dueQueue.length - 1));
+          loadStats();
           if (props.onChange) props.onChange();
         }
       };
-
       const kill = async () => {
         if (!dueQueue[idx]) return;
         const w = dueQueue[idx].word;
         setBusy(true);
         await host.call('cet6/vocab/kill', { word: w });
         setBusy(false);
-        setMsg({ kind: 'success', text: '⚔️ ' + w + ' 一击必杀' });
+        setMsg({ kind: 'success', text: '⚔️ ' + w + ' 一击必杀，进入已掌握' });
         setDueQueue(d => d.filter((_, i) => i !== idx));
+        loadStats();
         if (props.onChange) props.onChange();
       };
 
-      const lookup = async () => {
-        if (!customWord.trim()) return;
+      const addManual = async () => {
+        if (!manualWord.trim()) return;
         setBusy(true);
-        const r = await host.call('cet6/vocab/lookup', { word: customWord });
-        setBusy(false);
-        if (r && r.ok) {
-          setCustomResult(r);
-          setMsg({ kind: 'info', text: '查询成功' });
-        } else {
-          setMsg({ kind: 'error', text: (r && r.msg) || '未找到' });
-          setCustomResult(null);
-        }
-      };
-
-      const addToPool = async () => {
-        if (!customWord) return;
-        setBusy(true);
-        const r = await host.call('cet6/vocab/add', { word: customWord });
+        const r = await host.call('cet6/vocab/add', { word: manualWord });
         setBusy(false);
         if (r && r.ok) {
           setMsg({ kind: 'success', text: '✓ 已加入：' + r.word });
-          setCustomWord('');
+          setManualWord('');
+          setManualStatus(null);
+          loadStats();
           if (props.onChange) props.onChange();
-          loadList('reviewing');
         } else {
           setMsg({ kind: 'error', text: (r && r.msg) || '加入失败' });
         }
       };
 
-      const fetchNewWords = async () => {
+      const fetchPreview = async () => {
         setBusy(true);
-        const r = await host.call('cet6/vocab/new', { count: newCount });
+        const r = await host.call('cet6/vocab/preview', { count: previewCount });
         setBusy(false);
         if (r && r.length) {
-          setMsg({ kind: 'success', text: '已添加 ' + r.length + ' 个新词' });
-          if (props.onChange) props.onChange();
-          loadList('reviewing');
+          setPreviewPool(r.map(it => ({ ...it, removed: false })));
+          setMsg({ kind: 'info', text: '已为你挑选 ' + r.length + ' 个候选词（可逐个移除）' });
         } else {
-          setMsg({ kind: 'info', text: '没有更多新词可添加' });
+          setMsg({ kind: 'warn', text: '词库已无可加入的新词！' });
+          setPreviewPool([]);
+        }
+      };
+      const removeFromPreview = (word) => {
+        setPreviewPool(p => p.map(it => it.word === word ? { ...it, removed: !it.removed } : it));
+      };
+      const commitPreview = async () => {
+        const toAdd = previewPool.filter(it => !it.removed).map(it => it.word);
+        if (!toAdd.length) { setMsg({ kind: 'warn', text: '没有要加入的词' }); return; }
+        setBusy(true);
+        const r = await host.call('cet6/vocab/commit', { words: toAdd });
+        setBusy(false);
+        if (r && r.ok) {
+          setMsg({ kind: 'success', text: '✓ 成功加入 ' + r.addedCount + ' 个新词' + (r.skippedCount ? '（跳过 ' + r.skippedCount + ' 个）' : '') });
+          setPreviewPool([]);
+          loadStats();
+          if (props.onChange) props.onChange();
         }
       };
 
-      const removeWord = async (w) => {
+      const removeListItem = async (w) => {
         setBusy(true);
         await host.call('cet6/vocab/remove', { word: w });
         setBusy(false);
-        loadList(listMode);
+        loadList();
+        loadStats();
+        if (props.onChange) props.onChange();
+      };
+      const promoteToMastered = async (w) => {
+        setBusy(true);
+        await host.call('cet6/vocab/kill', { word: w });
+        setBusy(false);
+        setMsg({ kind: 'success', text: '⚔️ ' + w + ' 已掌握' });
+        loadList();
+        loadStats();
         if (props.onChange) props.onChange();
       };
 
       const current = dueQueue[idx];
+      const reviewProgress = current ? ((idx + 1) / Math.max(1, dueQueue.length)) * 100 : 0;
 
+      // ==================== Render ====================
       return h('div', { className: 'cet6-app' },
         h('div', { className: 'cet6-tabs' },
           h('button', { className: 'cet6-tab ' + (mode === 'review' ? 'active' : ''), onClick: () => setMode('review') }, '🎴 复习'),
           h('button', { className: 'cet6-tab ' + (mode === 'new' ? 'active' : ''), onClick: () => setMode('new') }, '📥 进货'),
           h('button', { className: 'cet6-tab ' + (mode === 'list' ? 'active' : ''), onClick: () => setMode('list') }, '📚 词库')
         ),
-        msg && h('div', { className: 'cet6-msg ' + msg.kind }, msg.text),
 
-        mode === 'review' && h('div', null,
-          h('div', { className: 'cet6-btn-row', style: { marginBottom: 12 } },
-            h('button', { className: 'cet6-btn secondary', onClick: loadDue, disabled: busy }, '🔄 重新拉取复习列表'),
-            h('span', { className: 'cet6-badge accent' }, '待复习：' + dueQueue.length)
+        // ===== 词库全景（始终显示） =====
+        h('div', { className: 'cet6-grid', style: { marginBottom: 16 } },
+          h('div', { className: 'cet6-stat warn' },
+            h('div', { className: 'num' }, stats.reviewing),
+            h('div', { className: 'label' }, '复习中')
           ),
-          current ? h('div', null,
-            h('div', { className: 'cet6-flash' },
-              h('div', { className: 'word' }, current.word),
-              showMeaning ? h('div', { className: 'meaning' }, current.meaning) : h('button', { className: 'cet6-btn', style: { background: 'rgba(255,255,255,0.2)' }, onClick: () => setShowMeaning(true) }, '👁️ 显示释义'),
-              h('div', { className: 'stage' }, '当前境界：' + RANKS_CLIENT[current.stage])
-            ),
-            h('div', { className: 'cet6-btn-row' },
-              h('button', { className: 'cet6-btn success', onClick: () => grade(true), disabled: busy || !showMeaning }, '✓ 记住了'),
-              h('button', { className: 'cet6-btn danger', onClick: () => grade(false), disabled: busy || !showMeaning }, '✗ 忘了'),
-              h('button', { className: 'cet6-btn secondary', onClick: kill, disabled: busy }, '⚔️ 一击必杀')
-            )
-          ) : h('div', { className: 'cet6-empty' }, dueQueue.length === 0 ? '🎉 今天没有需要复习的单词！' : '请先拉取复习列表')
-        ),
-
-        mode === 'new' && h('div', { className: 'cet6-card' },
-          h('h3', null, '🔍 查询 / 加入单词'),
-          h('input', { className: 'cet6-input', placeholder: '输入英文单词...', value: customWord, onChange: e => setCustomWord(e.target.value), onKeyDown: e => { if (e.key === 'Enter') lookup(); } }),
-          h('div', { className: 'cet6-btn-row' },
-            h('button', { className: 'cet6-btn secondary', onClick: lookup, disabled: busy || !customWord }, '🔍 查询释义'),
-            h('button', { className: 'cet6-btn', onClick: addToPool, disabled: busy || !customWord }, '➕ 加入复习')
+          h('div', { className: 'cet6-stat', title: '还有 ' + stats.available + ' 个新词可加入' },
+            h('div', { className: 'num' }, stats.available),
+            h('div', { className: 'label' }, '可加入')
           ),
-          customResult && h('div', { className: 'cet6-msg info', style: { marginTop: 12 } }, '【' + customResult.word + '】 ' + customResult.meaning),
-          h('hr', { style: { margin: '20px 0', border: 'none', borderTop: '1px solid var(--border, #e2e2e2)' } }),
-          h('h3', null, '📥 批量拉取新词'),
-          h('div', { style: { display: 'flex', gap: 8, alignItems: 'center' } },
-            h('input', { type: 'number', className: 'cet6-input', style: { maxWidth: 120 }, value: newCount, onChange: e => setNewCount(Math.max(1, Math.min(100, Number(e.target.value) || 10))) }),
-            h('button', { className: 'cet6-btn', onClick: fetchNewWords, disabled: busy }, '🎲 拉取 ' + newCount + ' 个新词')
+          h('div', { className: 'cet6-stat success' },
+            h('div', { className: 'num' }, stats.mastered),
+            h('div', { className: 'label' }, '已掌握')
+          ),
+          h('div', { className: 'cet6-stat muted' },
+            h('div', { className: 'num' }, stats.total),
+            h('div', { className: 'label' }, '词库总量')
           )
         ),
 
-        mode === 'list' && h('div', null,
-          h('div', { className: 'cet6-tabs' },
-            h('button', { className: 'cet6-tab ' + (listMode === 'reviewing' ? 'active' : ''), onClick: () => loadList('reviewing') }, '复习中'),
-            h('button', { className: 'cet6-tab ' + (listMode === 'mastered' ? 'active' : ''), onClick: () => loadList('mastered') }, '已掌握')
+        msg && h('div', { className: 'cet6-msg ' + msg.kind, onClick: () => setMsg(null) }, msg.text, h('span', { style: { float: 'right', opacity: 0.5, fontSize: 11 } }, '✕ 点击关闭')),
+
+        // ==================== Review ====================
+        mode === 'review' && h('div', null,
+          h('div', { className: 'cet6-chips' },
+            h('span', { className: 'cet6-chip ' + (reviewFilter === 'all' ? 'active' : ''), onClick: () => setReviewFilter('all') }, '全部待复习'),
+            h('span', { className: 'cet6-chip ' + (reviewFilter === 'fuzzy' ? 'active' : ''), onClick: () => setReviewFilter('fuzzy') }, '模糊词 (0-2阶)'),
+            h('span', { className: 'cet6-chip ' + (reviewFilter === 'vague' ? 'active' : ''), onClick: () => setReviewFilter('vague') }, '全新 (0阶)')
           ),
-          wordList.length === 0 ? h('div', { className: 'cet6-empty' }, '暂无单词') :
-            h('div', { className: 'cet6-list' },
-              wordList.map((it, i) => h('div', { key: i, className: 'cet6-list-item' },
-                h('div', null,
-                  h('div', { className: 'word' }, it.word, ' ', h('span', { className: 'cet6-badge' }, it.rank || '')),
-                  h('div', { className: 'meaning' }, it.meaning || it.rank)
+          h('div', { className: 'cet6-btn-row', style: { marginBottom: 12 } },
+            h('button', { className: 'cet6-btn secondary', onClick: loadDue, disabled: busy }, '🔄 重新拉取'),
+            dueQueue.length > 0 && h('span', { className: 'cet6-badge accent' }, '本次共 ' + dueQueue.length + ' 个')
+          ),
+          current ? h('div', null,
+            h('div', { className: 'cet6-flash' },
+              h('div', { className: 'progress' },
+                h('span', null, idx + 1 + ' / ' + dueQueue.length),
+                h('div', { className: 'bar' }, h('div', { className: 'fill', style: { width: reviewProgress + '%' } })),
+                h('span', { className: 'next' }, current.nextReview ? (relTime(current.nextReview) + ' 到期') : '')
               ),
-                h('button', { className: 'cet6-btn secondary', style: { padding: '4px 10px', fontSize: 12 }, onClick: () => removeWord(it.word) }, '移除')
+              h('div', { className: 'word' }, current.word),
+              showMeaning ? h('div', { className: 'meaning' }, current.meaning || '(无释义)') : h('button', { className: 'cet6-btn large', style: { background: 'rgba(255,255,255,0.2)' }, onClick: () => setShowMeaning(true) }, '👁️ 显示释义'),
+              h('div', { className: 'stage' }, '境界：' + RANKS_CLIENT[current.stage] + '   ·   按 1=记住 / 2=忘了 / 3=击杀 / Space=显示')
+            ),
+            h('div', { className: 'cet6-btn-row' },
+              h('button', { className: 'cet6-btn success large', onClick: () => grade(true), disabled: busy || !showMeaning }, '✓ 记住了 (1)'),
+              h('button', { className: 'cet6-btn danger large', onClick: () => grade(false), disabled: busy || !showMeaning }, '✗ 忘了 (2)'),
+              h('button', { className: 'cet6-btn warn', onClick: kill, disabled: busy }, '⚔️ 一击必杀 (3)'),
+              h('button', { className: 'cet6-btn secondary', onClick: () => { setIdx(Math.max(0, idx - 1)); setShowMeaning(false); }, disabled: idx === 0 }, '← 上一题'),
+              h('button', { className: 'cet6-btn secondary', onClick: () => { setIdx(Math.min(idx + 1, dueQueue.length - 1)); setShowMeaning(false); }, disabled: idx >= dueQueue.length - 1 }, '下一题 →')
+            )
+          ) : h('div', { className: 'cet6-empty' },
+            dueQueue.length === 0
+              ? (reviewFilter === 'all' ? '🎉 今天没有需要复习的单词！去【进货】添点新词吧' : '该筛选下没有单词')
+              : '请先拉取复习列表'
+          )
+        ),
+
+        // ==================== New (进货) ====================
+        mode === 'new' && h('div', null,
+          // Section 1: 精准加词
+          h('div', { className: 'cet6-card' },
+            h('h3', null, '🎯 精准加词'),
+            h('div', { className: 'subtle' }, '输入你想学的单词 → 实时查询 → 一键加入复习'),
+            h('div', { style: { position: 'relative' } },
+              h('input', {
+                className: 'cet6-input',
+                placeholder: '输入英文单词...',
+                value: manualWord,
+                onChange: e => setManualWord(e.target.value),
+                onKeyDown: e => { if (e.key === 'Enter' && manualStatus && manualStatus.state === 'addable') addManual(); }
+              }),
+              manualStatus && h('div', { className: 'cet6-msg ' + (
+                  manualStatus.state === 'addable' ? 'success' :
+                  manualStatus.state === 'reviewing' ? 'warn' :
+                  manualStatus.state === 'mastered' ? 'info' : 'error'
+                ), style: { marginTop: 0 } },
+                manualStatus.state === 'addable' && '✅ 词库收录 → ',
+                manualStatus.state === 'addable' && h('strong', null, manualStatus.meaning),
+                manualStatus.state === 'reviewing' && '⚠️ ' + manualStatus.word + ' 已在复习中：' + (manualStatus.meaning || ''),
+                manualStatus.state === 'mastered' && '✓ ' + manualStatus.word + ' 已掌握：' + (manualStatus.meaning || ''),
+                manualStatus.state === 'missing' && '❌ ' + manualStatus.word + ' 不在 CET6 词库中'
+              )
+            ),
+            h('div', { className: 'cet6-btn-row' },
+              h('button', { className: 'cet6-btn', onClick: addManual, disabled: busy || !manualStatus || manualStatus.state !== 'addable' }, manualStatus && manualStatus.state === 'addable' ? '➕ 加入复习' : (manualStatus ? '该词已存在/不存在' : '先输入单词'))
+            )
+          ),
+
+          // Section 2: 批量抽词（预览模式）
+          h('div', { className: 'cet6-card' },
+            h('h3', null, '🎲 批量抽词'),
+            h('div', { className: 'subtle' }, '先「试抽」预览 → 移除不想要的 → 「确认加入」才入库'),
+            h('div', { className: 'cet6-btn-row', style: { alignItems: 'center', marginBottom: 12 } },
+              h('label', { style: { fontSize: 13, color: 'var(--fg-muted, #666)' } }, '数量'),
+              h('input', { type: 'number', className: 'cet6-input', style: { maxWidth: 100, marginBottom: 0 }, value: previewCount, onChange: e => setPreviewCount(Math.max(1, Math.min(100, Number(e.target.value) || 10))) }),
+              h('span', { style: { fontSize: 12, color: 'var(--fg-muted, #888)' } }, '/ 可加入池剩余 ' + stats.available),
+              h('div', { style: { flex: 1 } }),
+              h('button', { className: 'cet6-btn secondary', onClick: fetchPreview, disabled: busy }, '🎲 试抽 ' + previewCount + ' 个'),
+              previewPool.length > 0 && h('button', { className: 'cet6-btn secondary', onClick: () => setPreviewPool([]) }, '✕ 清空')
+            ),
+            previewPool.length > 0 && h('div', null,
+              h('div', { className: 'cet6-pool' },
+                h('span', { style: { fontSize: 12, color: 'var(--fg-muted, #666)', alignSelf: 'center' } }, '预览：'),
+                previewPool.map(it => h('span', {
+                  key: it.word,
+                  className: 'item ' + (it.removed ? 'removed' : ''),
+                  onClick: () => removeFromPreview(it.word),
+                  title: it.meaning
+                }, it.removed ? '× ' + it.word : it.word))
+              ),
+              h('div', { className: 'cet6-list', style: { maxHeight: 280 } },
+                previewPool.map(it => h('div', {
+                  key: it.word,
+                  className: 'cet6-preview-item ' + (it.removed ? 'removed' : '')
+                },
+                  h('div', { className: 'info' },
+                    h('div', { className: 'w' }, it.word),
+                    h('div', { className: 'm' }, it.meaning || '(无释义)')
+                  ),
+                  h('button', { className: 'x', onClick: () => removeFromPreview(it.word), title: it.removed ? '恢复' : '移除' }, it.removed ? '↺' : '×')
+                ))
+              ),
+              h('div', { style: { marginTop: 12, padding: 10, background: 'var(--bg-elevated, #fafafa)', borderRadius: 8, fontSize: 13 } },
+                '将加入 ',
+                h('strong', { style: { color: '#16a34a' } }, previewPool.filter(it => !it.removed).length),
+                ' 个，跳过 ',
+                h('strong', { style: { color: '#dc2626' } }, previewPool.filter(it => it.removed).length),
+                ' 个'
+              ),
+              h('div', { className: 'cet6-btn-row', style: { marginTop: 12 } },
+                h('button', { className: 'cet6-btn success large', onClick: commitPreview, disabled: busy || previewPool.every(it => it.removed) }, '✓ 确认加入 ' + previewPool.filter(it => !it.removed).length + ' 个'),
+                h('button', { className: 'cet6-btn secondary', onClick: fetchPreview, disabled: busy }, '↻ 换一批')
+              )
+            ),
+            previewPool.length === 0 && h('div', { className: 'cet6-empty small' }, '点击「🎲 试抽 N 个」生成候选词')
+          )
+        ),
+
+        // ==================== List (词库) ====================
+        mode === 'list' && h('div', null,
+          h('div', { className: 'cet6-card' },
+            h('input', {
+              className: 'cet6-input',
+              placeholder: '🔍 搜索单词 (前缀/包含)...',
+              value: listQuery,
+              onChange: e => setListQuery(e.target.value),
+              style: { marginBottom: 12 }
+            }),
+            h('div', { className: 'cet6-chips' },
+              h('span', { className: 'cet6-chip ' + (listMode === 'all' ? 'active' : ''), onClick: () => setListMode('all') }, '全部'),
+              h('span', { className: 'cet6-chip ' + (listMode === 'reviewing' ? 'active' : ''), onClick: () => setListMode('reviewing') }, '复习中'),
+              h('span', { className: 'cet6-chip ' + (listMode === 'mastered' ? 'active' : ''), onClick: () => setListMode('mastered') }, '已掌握')
+            ),
+            h('div', { className: 'cet6-chips' },
+              h('span', { style: { fontSize: 12, color: 'var(--fg-muted, #666)', alignSelf: 'center', marginRight: 4 } }, '阶段：'),
+              h('span', { className: 'cet6-chip ' + (listStage === null ? 'active' : ''), onClick: () => setListStage(null) }, '全部'),
+              RANKS_CLIENT.map((label, i) => h('span', { key: i, className: 'cet6-chip ' + (listStage === i ? 'active' : ''), onClick: () => setListStage(i) }, label))
+            ),
+            h('div', { className: 'cet6-chips' },
+              h('span', { style: { fontSize: 12, color: 'var(--fg-muted, #666)', alignSelf: 'center', marginRight: 4 } }, '排序：'),
+              h('span', { className: 'cet6-chip ' + (listSort === 'stage' ? 'active' : ''), onClick: () => setListSort('stage') }, '按境界'),
+              h('span', { className: 'cet6-chip ' + (listSort === 'nextReview' ? 'active' : ''), onClick: () => setListSort('nextReview') }, '按下次复习'),
+              h('span', { className: 'cet6-chip ' + (listSort === 'recent' ? 'active' : ''), onClick: () => setListSort('recent') }, '按入库时间'),
+              h('span', { className: 'cet6-chip ' + (listSort === 'word' ? 'active' : ''), onClick: () => setListSort('word') }, '按字母')
+            ),
+            h('div', { style: { fontSize: 12, color: 'var(--fg-muted, #888)', marginBottom: 8 } }, '共 ' + listItems.length + ' 条结果')
+          ),
+          listItems.length === 0 ? h('div', { className: 'cet6-empty' }, '没有匹配的单词') :
+            h('div', { className: 'cet6-list' },
+              listItems.map((it, i) => h('div', { key: i, className: 'cet6-list-item' },
+                h('div', { style: { flex: 1, minWidth: 0 } },
+                  h('div', { className: 'word' }, it.word, ' ', h('span', { className: 'cet6-badge ' + (it.pool === 'mastered' ? 'success' : 'accent') }, it.rank)),
+                  h('div', { className: 'meaning' }, it.meaning || '(无释义)'),
+                  it.pool === 'reviewing' && it.nextReview > 0 && h('div', { className: 'meta' }, '下次复习：' + relTime(it.nextReview)),
+                  it.pool === 'mastered' && it.addTime && h('div', { className: 'meta' }, '已掌握于 ' + new Date(it.addTime * 1000).toLocaleDateString())
+                ),
+                h('div', { className: 'actions' },
+                  it.pool === 'reviewing' && h('button', { className: 'icon-btn', title: '直接标记为掌握', onClick: () => promoteToMastered(it.word) }, '⭐'),
+                  h('button', { className: 'icon-btn danger', title: '移除', onClick: () => removeListItem(it.word) }, '🗑')
+                )
               ))
             )
         )
@@ -266,13 +525,21 @@ return {
       const [msg, setMsg] = React.useState(null);
       const [busy, setBusy] = React.useState(false);
       const [answeredKey, setAnsweredKey] = React.useState('');
+      const [filter, setFilter] = React.useState('all'); // all | wrong | undone
+      const [wrongCount, setWrongCount] = React.useState(0);
+
+      const refreshWrongCount = async () => {
+        const r = await host.call('cet6/reading/wrong', {});
+        setWrongCount((r || []).length);
+      };
+      React.useEffect(() => { refreshWrongCount(); }, []);
 
       const draw = async () => {
         setBusy(true);
         setResult(null);
         setSelected({});
         setAnsweredKey('');
-        const r = await host.call('cet6/reading/draw', {});
+        const r = await host.call('cet6/reading/draw', { filter });
         setBusy(false);
         if (r && r.ok) {
           setCurrent(r);
@@ -283,7 +550,7 @@ return {
         }
       };
 
-      React.useEffect(() => { draw(); }, []);
+      React.useEffect(() => { draw(); }, [filter]);
 
       const selectOpt = (qIdx, letter) => {
         if (result) return;
@@ -309,6 +576,7 @@ return {
         setBusy(false);
         if (r && r.ok) {
           setResult(r);
+          refreshWrongCount();
           if (props.onChange) props.onChange();
         } else {
           setMsg({ kind: 'error', text: (r && r.msg) || '批改失败' });
@@ -323,6 +591,7 @@ return {
         if (r && r.ok) {
           setAnsweredKey(r.correct);
           setResult({ ok: true, qId: r.qId, correct: r.correct, user: '', right: 0, total: r.correct.length, score: 0, detail: r.correct.split('').map((c, i) => ({ q: i + 1, user: '?', correct: c, ok: false })) });
+          refreshWrongCount();
           if (props.onChange) props.onChange();
         } else {
           setMsg({ kind: 'error', text: (r && r.msg) || '失败' });
@@ -339,11 +608,16 @@ return {
       };
 
       return h('div', { className: 'cet6-app' },
+        h('div', { className: 'cet6-chips', style: { marginBottom: 12 } },
+          h('span', { className: 'cet6-chip ' + (filter === 'all' ? 'active' : ''), onClick: () => setFilter('all') }, '🎲 全部随机'),
+          h('span', { className: 'cet6-chip ' + (filter === 'undone' ? 'active' : ''), onClick: () => setFilter('undone') }, '📝 只抽未做的'),
+          h('span', { className: 'cet6-chip ' + (filter === 'wrong' ? 'active' : ''), onClick: () => setFilter('wrong') }, '❌ 错题本 ' + (wrongCount > 0 ? '(' + wrongCount + ')' : ''))
+        ),
         h('div', { className: 'cet6-btn-row', style: { marginBottom: 12 } },
-          h('button', { className: 'cet6-btn', onClick: draw, disabled: busy }, '🎲 来篇阅读'),
+          h('button', { className: 'cet6-btn', onClick: draw, disabled: busy }, '🎲 ' + (filter === 'wrong' ? '再来一道错题' : filter === 'undone' ? '抽未做的' : '来篇阅读')),
           current && !result && h('button', { className: 'cet6-btn secondary', onClick: checkAnswer, disabled: busy }, '👀 直接查答案')
         ),
-        msg && h('div', { className: 'cet6-msg ' + msg.kind }, msg.text),
+        msg && h('div', { className: 'cet6-msg ' + msg.kind, onClick: () => setMsg(null) }, msg.text),
 
         current && h('div', null,
           h('div', { className: 'cet6-card' },
@@ -395,13 +669,21 @@ return {
       const [msg, setMsg] = React.useState(null);
       const [busy, setBusy] = React.useState(false);
       const [audioErr, setAudioErr] = React.useState(false);
+      const [filter, setFilter] = React.useState('all'); // all | A | B | C | wrong
+      const [wrongCount, setWrongCount] = React.useState(0);
+
+      const refreshWrongCount = async () => {
+        const r = await host.call('cet6/listening/wrong', {});
+        setWrongCount((r || []).length);
+      };
+      React.useEffect(() => { refreshWrongCount(); }, []);
 
       const draw = async () => {
         setBusy(true);
         setResult(null);
         setSelected({});
         setAudioErr(false);
-        const r = await host.call('cet6/listening/draw', {});
+        const r = await host.call('cet6/listening/draw', { filter });
         setBusy(false);
         if (r && r.ok) {
           setCurrent(r);
@@ -412,7 +694,7 @@ return {
         }
       };
 
-      React.useEffect(() => { draw(); }, []);
+      React.useEffect(() => { draw(); }, [filter]);
 
       const sections = current && current.sections || {};
       const sectionTypes = { A: '长对话', B: '短文', C: '讲话/讲座' };
@@ -446,6 +728,7 @@ return {
         setBusy(false);
         if (r && r.ok) {
           setResult(r);
+          refreshWrongCount();
           if (props.onChange) props.onChange();
         } else {
           setMsg({ kind: 'error', text: (r && r.msg) || '批改失败' });
@@ -470,12 +753,27 @@ return {
         return 'cet6-opt';
       };
 
+      const filterLabels = {
+        all: '🎲 全部',
+        A: '🅰️ 长对话',
+        B: '🅱️ 短文',
+        C: '🅲 讲话',
+        wrong: '❌ 错题本'
+      };
+
       return h('div', { className: 'cet6-app' },
+        h('div', { className: 'cet6-chips', style: { marginBottom: 12 } },
+          Object.keys(filterLabels).map(k => h('span', {
+            key: k,
+            className: 'cet6-chip ' + (filter === k ? 'active' : ''),
+            onClick: () => setFilter(k)
+          }, filterLabels[k] + (k === 'wrong' && wrongCount > 0 ? ' (' + wrongCount + ')' : '')))
+        ),
         h('div', { className: 'cet6-btn-row', style: { marginBottom: 12 } },
           h('button', { className: 'cet6-btn', onClick: draw, disabled: busy }, '🎧 来个听力'),
           current && !result && h('button', { className: 'cet6-btn secondary', onClick: skip, disabled: busy }, '⏭️ 跳过')
         ),
-        msg && h('div', { className: 'cet6-msg ' + msg.kind }, msg.text),
+        msg && h('div', { className: 'cet6-msg ' + msg.kind, onClick: () => setMsg(null) }, msg.text),
 
         current && h('div', null,
           h('div', { className: 'cet6-card' },
