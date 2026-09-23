@@ -44,7 +44,7 @@ return {
     LISTENING_ANSWER_OVERRIDES['2025_12_2'] = {"1":"B","2":"A","3":"C","4":"D","5":"A","6":"B","7":"D","8":"C","9":"B","10":"C","11":"A","12":"C","13":"A","14":"B","15":"D","16":"C","17":"B","18":"D","19":"B","20":"B","21":"C","22":"B","23":"C","24":"C","25":"B"};
 
     // ===== Shared state =====
-    const dataStatus = { loaded: false, loading: false, error: null, vocabCount: 0, readingCount: 0, listeningCount: 0, readingMatchedCount: 0, readingMissingCount: 0, listeningSanitizedCount: 0, listeningMp3RestoredCount: 0, listeningOverriddenCount: 0 };
+    const dataStatus = { loaded: false, loading: false, error: null, vocabCount: 0, readingCount: 0, listeningCount: 0, readingMatchedCount: 0, readingSkippedCount: 0, listeningSanitizedCount: 0, listeningMp3RestoredCount: 0, listeningOverriddenCount: 0 };
     let loadingPromise = null;
     const vocab = Object.create(null);
     const vocabList = [];
@@ -534,23 +534,25 @@ return {
             }
           }
           // Process reading + answers
-          let readingMatchedCount = 0, readingMissingCount = 0;
+          // Strategy: a reading is only loaded if (a) its answer set exists in
+          // answerRaw AND (b) the specific section answer string is non-empty
+          // after stripping non-A-Z. Readings without available answers are
+          // dropped entirely (no "暂无答案" ghost rows).
+          let readingMatchedCount = 0, readingSkippedCount = 0;
           for (const item of rawReading) {
             const r = normReading(item);
-            readings.push(r);
             const m2 = r.meta || {}; // already patched in normReading
             const monthPad = String(m2.month || '').padStart(2, '0');
             const setKey = m2.year + '_' + monthPad + '_' + m2.set_index;
             const ans = answerRaw[setKey];
-            if (ans && ans.answers) {
-              // Use normalized r.type so 'Section C - Passage 1' → 'Section C1' matches answers.json
-              const secAns = ans.answers[r.type] || '';
-              const cleaned = secAns.replace(/[^A-Z]/g, '');
-              if (cleaned) { answers[r.id] = cleaned; readingMatchedCount++; }
-              else readingMissingCount++;
-            } else {
-              readingMissingCount++;
-            }
+            if (!ans || !ans.answers) { readingSkippedCount++; continue; }
+            // Use normalized r.type so 'Section C - Passage 1' → 'Section C1' matches answers.json
+            const secAns = ans.answers[r.type] || '';
+            const cleaned = secAns.replace(/[^A-Z]/g, '');
+            if (!cleaned) { readingSkippedCount++; continue; }
+            answers[r.id] = cleaned;
+            readings.push(r);
+            readingMatchedCount++;
           }
           // Process listening
           let listeningSanitizedCount = 0, listeningMp3RestoredCount = 0, listeningOverriddenCount = 0;
@@ -565,12 +567,12 @@ return {
           dataStatus.readingCount = readings.length;
           dataStatus.listeningCount = Object.keys(listenings).length;
           dataStatus.readingMatchedCount = readingMatchedCount;
-          dataStatus.readingMissingCount = readingMissingCount;
+          dataStatus.readingSkippedCount = readingSkippedCount;
           dataStatus.listeningSanitizedCount = listeningSanitizedCount;
           dataStatus.listeningMp3RestoredCount = listeningMp3RestoredCount;
           dataStatus.listeningOverriddenCount = listeningOverriddenCount;
           dataStatus.loaded = true;
-          console.log('[cet6] Data ready: ' + dataStatus.vocabCount + ' words, ' + dataStatus.readingCount + ' readings (' + readingMatchedCount + ' matched, ' + readingMissingCount + ' missing), ' + dataStatus.listeningCount + ' listenings (' + listeningSanitizedCount + ' sanitized, ' + listeningMp3RestoredCount + ' mp3-restored, ' + listeningOverriddenCount + ' overridden)');
+          console.log('[cet6] Data ready: ' + dataStatus.vocabCount + ' words, ' + dataStatus.readingCount + ' readings (' + readingMatchedCount + ' loaded, ' + readingSkippedCount + ' skipped for missing answers), ' + dataStatus.listeningCount + ' listenings (' + listeningSanitizedCount + ' sanitized, ' + listeningMp3RestoredCount + ' mp3-restored, ' + listeningOverriddenCount + ' overridden)');
           try { await saveDataCache(); } catch (e) { console.error('[cet6] cache save:', e); }
         } catch (e) {
           dataStatus.error = String(e && e.message || e);
