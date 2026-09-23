@@ -343,10 +343,8 @@ return {
       // ctx.web.fetch silently truncates large responses (~100KB cap), which breaks
       // JSON parsing for the 3 MB vocab/reading files. Strategy:
       //   1. Try web.fetch (fast, fine for small files like answers/listening).
-      //   2. If body is truncated or kind != text/html, fall back to shell.exec + curl
-      //      via ctx.shell, streaming the file to a workspace temp path. Then read it.
-      const filename = url.split('/').pop();
-      const tmpPath = '/cet6_tutor_dl_' + encodeURIComponent(filename) + '.json';
+      //   2. If body is truncated or kind != text/html, fall back to ctx.shell + curl,
+      //      capturing stdout (no temp file → no fs / shell filesystem mismatch).
       try {
         const r = await ctx.web.fetch({ url });
         if (r.statusCode === 200 && !r.truncated && (r.body.kind === 'text' || r.body.kind === 'html')) {
@@ -354,22 +352,25 @@ return {
           if (text && text.length > 1024) return JSON.parse(text);
         }
       } catch (e) { /* fall through to shell */ }
-      // Fallback: curl via shell
+      // Fallback: curl via shell (capture stdout)
       if (!ctx.shell) throw new Error('web.fetch truncated and shell unavailable');
       const sh = ctx.shell;
+      // shell.exec.request.command must be ONE string; stdoutMaxBytes raised to fit ~3MB JSON;
+      // sandboxPolicy must be danger-full-access for network access.
+      const safeUrl = url.replace(/'/g, "'\\''");
       const spec = sh.resolve({
-        command: 'curl',
-        args: ['-fsSL', '--max-time', '60', url, '-o', tmpPath]
+        command: "curl -fsSL --max-time 60 '" + safeUrl + "'",
+        timeoutMs: 90000,
+        stdoutMaxBytes: 8 * 1024 * 1024,
+        sandboxPolicy: { mode: 'danger-full-access', workspaceRoot: '/' }
       });
       const res = await sh.run(spec);
-      if (res.exitCode !== 0) throw new Error('curl failed (' + res.exitCode + '): ' + (res.stderr || ''));
-      const target = await ctx.fs.resolve(tmpPath);
-      const text = await ctx.fs.readText(target);
-      if (!text || text.length < 10) throw new Error('downloaded file is empty');
-      try { return JSON.parse(text); }
-      finally {
-        try { /* leave file in workspace for debug */ } catch (e) {}
-      }
+      // stdout/stderr are CollectedOutput {text, truncated, spillPath} — use .text
+      const stderrTxt = (res.stderr && res.stderr.text) || '';
+      const stdoutTxt = (res.stdout && res.stdout.text) || '';
+      if (res.exitCode !== 0) throw new Error('curl failed (exit ' + res.exitCode + '): ' + stderrTxt.slice(0, 500));
+      if (!stdoutTxt || stdoutTxt.length < 10) throw new Error('curl produced no output (truncated=' + (res.stdout && res.stdout.truncated) + ')');
+      return JSON.parse(stdoutTxt);
     }
     async function loadAllData() {
       if (dataStatus.loaded) return;
