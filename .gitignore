@@ -22,4 +22,7 @@ build/
 
 # Secrets
 .env
-.env.localverify/
+.env.local
+
+# Development artifacts (not for source distribution)
+verify/
