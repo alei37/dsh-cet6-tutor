@@ -9,8 +9,42 @@ return {
     const RANKS = ['待定 🥚', '模糊 📉', '清晰 📈', '记住 🧠', '牢固 🛡️', '掌握 🌟', '精通 👑'];
     const USER_ID = 'self';
 
+    // ===== Upstream fixes (auto-repair layer) =====
+    // KNOWN_MP3S: verified list of MP3 filenames present in the upstream
+    //   'CET-6听力/' directory. Used to back-fill mp3_file when listening.json
+    //   has meta=null (e.g. 2023_03_1, 2022_06_1).
+    const KNOWN_MP3S = new Set([
+        '2019_06_1','2019_06_2','2019_12_1','2019_12_2',
+        '2020_07_1','2020_09_1','2020_12_1','2020_12_2',
+        '2021_06_1','2021_06_2','2021_12_1','2021_12_2',
+        '2022_06_1','2022_09_1','2022_12_1','2022_12_2',
+        '2023_03_1','2023_06_1','2023_06_2',
+        '2023_12_1','2023_12_2',
+        '2024_06_1','2024_06_2','2024_12_1','2024_12_2',
+        '2025_06_1','2025_06_2'
+      ]);
+    // LISTENING_ANSWER_OVERRIDES: authoritative answers from
+    //   Drhm1224/cet6-all-in-one (cross-validated 2024-09).
+    //   Used to repair upstream's 30 garbage letters (E/F/G/H/I/J/K/L/M/N/O)
+    //   in 2025_06_2, 2024_06_2, 2023_12_1.
+    const LISTENING_ANSWER_OVERRIDES = Object.create(null);
+    LISTENING_ANSWER_OVERRIDES['2023_06_1'] = {"1":"B","2":"B","3":"C","4":"A","5":"D","6":"C","7":"A","8":"D","9":"A","10":"B","11":"D","12":"C","13":"D","14":"B","15":"C","16":"A","17":"C","18":"B","19":"D","20":"C","21":"B","22":"D","23":"A","24":"D","25":"A"};
+    LISTENING_ANSWER_OVERRIDES['2023_06_2'] = {"1":"D","2":"A","3":"C","4":"B","5":"D","6":"C","7":"D","8":"A","9":"A","10":"B","11":"C","12":"A","13":"B","14":"D","15":"C","16":"D","17":"A","18":"C","19":"C","20":"B","21":"C","22":"B","23":"B","24":"A","25":"D"};
+    LISTENING_ANSWER_OVERRIDES['2023_12_1'] = {"1":"B","2":"C","3":"A","4":"D","5":"D","6":"C","7":"D","8":"B","9":"D","10":"A","11":"C","12":"B","13":"A","14":"D","15":"C","16":"A","17":"B","18":"B","19":"C","20":"B","21":"D","22":"A","23":"D","24":"C","25":"C"};
+    LISTENING_ANSWER_OVERRIDES['2023_12_2'] = {"1":"D","2":"A","3":"C","4":"B","5":"A","6":"A","7":"B","8":"C","9":"B","10":"D","11":"C","12":"A","13":"B","14":"D","15":"A","16":"A","17":"B","18":"D","19":"B","20":"A","21":"C","22":"D","23":"B","24":"A","25":"A"};
+    LISTENING_ANSWER_OVERRIDES['2023_12_3'] = {"1":"D","2":"A","3":"C","4":"C","5":"D","6":"A","7":"B","8":"D","9":"D","10":"B","11":"A","12":"A","13":"D","14":"D","15":"B","16":"D","17":"B","18":"B","19":"C","20":"D","21":"C","22":"C","23":"A","24":"D","25":"A"};
+    LISTENING_ANSWER_OVERRIDES['2024_06_1'] = {"1":"D","2":"B","3":"C","4":"A","5":"A","6":"B","7":"D","8":"C","9":"A","10":"B","11":"B","12":"D","13":"C","14":"C","15":"D","16":"A","17":"C","18":"B","19":"A","20":"B","21":"D","22":"D","23":"A","24":"D","25":"C"};
+    LISTENING_ANSWER_OVERRIDES['2024_06_2'] = {"1":"D","2":"C","3":"A","4":"B","5":"D","6":"C","7":"D","8":"A","9":"A","10":"D","11":"B","12":"B","13":"C","14":"D","15":"C","16":"D","17":"A","18":"C","19":"C","20":"B","21":"C","22":"B","23":"B","24":"A","25":"D"};
+    LISTENING_ANSWER_OVERRIDES['2024_12_1'] = {"1":"B","2":"A","3":"C","4":"C","5":"A","6":"B","7":"A","8":"D","9":"A","10":"B","11":"B","12":"D","13":"C","14":"C","15":"D","16":"A","17":"C","18":"B","19":"A","20":"B","21":"D","22":"D","23":"A","24":"D","25":"C"};
+    LISTENING_ANSWER_OVERRIDES['2024_12_2'] = {"1":"A","2":"C","3":"A","4":"B","5":"D","6":"C","7":"D","8":"A","9":"A","10":"D","11":"B","12":"B","13":"C","14":"D","15":"C","16":"D","17":"A","18":"C","19":"C","20":"B","21":"C","22":"B","23":"B","24":"A","25":"D"};
+    LISTENING_ANSWER_OVERRIDES['2024_12_3'] = {"1":"D","2":"C","3":"A","4":"C","5":"A","6":"B","7":"A","8":"D","9":"C","10":"B","11":"C","12":"B","13":"C","14":"B","15":"A","16":"A","17":"B","18":"C","19":"A","20":"D","21":"C","22":"B","23":"D","24":"C","25":"A"};
+    LISTENING_ANSWER_OVERRIDES['2025_06_1'] = {"1":"C","2":"B","3":"D","4":"A","5":"A","6":"D","7":"C","8":"D","9":"C","10":"B","11":"A","12":"C","13":"C","14":"B","15":"B","16":"D","17":"A","18":"B","19":"B","20":"C","21":"B","22":"D","23":"A","24":"D","25":"A"};
+    LISTENING_ANSWER_OVERRIDES['2025_06_2'] = {"1":"B","2":"A","3":"C","4":"D","5":"A","6":"B","7":"D","8":"C","9":"B","10":"C","11":"A","12":"C","13":"A","14":"B","15":"D","16":"C","17":"B","18":"D","19":"C","20":"D","21":"C","22":"C","23":"D","24":"B","25":"C"};
+    LISTENING_ANSWER_OVERRIDES['2025_12_1'] = {"1":"D","2":"D","3":"B","4":"C","5":"A","6":"B","7":"D","8":"C","9":"D","10":"A","11":"C","12":"B","13":"B","14":"C","15":"D","16":"B","17":"A","18":"D","19":"C","20":"B","21":"D","22":"C","23":"A","24":"C","25":"D"};
+    LISTENING_ANSWER_OVERRIDES['2025_12_2'] = {"1":"B","2":"A","3":"C","4":"D","5":"A","6":"B","7":"D","8":"C","9":"B","10":"C","11":"A","12":"C","13":"A","14":"B","15":"D","16":"C","17":"B","18":"D","19":"B","20":"B","21":"C","22":"B","23":"C","24":"C","25":"B"};
+
     // ===== Shared state =====
-    const dataStatus = { loaded: false, loading: false, error: null, vocabCount: 0, readingCount: 0, listeningCount: 0 };
+    const dataStatus = { loaded: false, loading: false, error: null, vocabCount: 0, readingCount: 0, listeningCount: 0, readingMatchedCount: 0, readingMissingCount: 0, listeningSanitizedCount: 0, listeningMp3RestoredCount: 0, listeningOverriddenCount: 0 };
     let loadingPromise = null;
     const vocab = Object.create(null);
     const vocabList = [];
@@ -28,6 +62,38 @@ return {
     // ===== Pure helpers =====
     function nowSec() { return Math.floor(Date.now() / 1000); }
 
+    // ===== Data normalization (with upstream fixes) =====
+    // Map old-style Section C labels to canonical names so they match answers.json keys.
+    function normalizeReadingType(type) {
+      if (!type) return type;
+      if (type === 'Section C - Passage 1') return 'Section C1';
+      if (type === 'Section C - Passage 2') return 'Section C2';
+      return type;
+    }
+    // Extract month / set_index from filename when meta values are "未知" or default.
+    // Filename examples:
+    //   "2020年07月六级真题（全1套）.docx"
+    //   "2020年09月六级真题（第1套）.docx"
+    //   "2023年03月六级真题（第1套）.docx"
+    function patchMetaFromFilename(m) {
+      if (!m || !m.filename) return m;
+      const fname = m.filename;
+      // Month: prefer 年X月
+      if (!m.month || String(m.month) === '未知' || m.month === 'x') {
+        const mm = fname.match(/(\d{4})年(\d{1,2})月/);
+        if (mm) m.month = mm[2];
+      }
+      // Set index: 第N套, or 全N套
+      if (m.set_index === '1' || !m.set_index || m.set_index === 'x') {
+        const ms = fname.match(/第(\d+)套/);
+        if (ms) m.set_index = ms[1];
+        else {
+          const ms2 = fname.match(/全(\d+)套/);
+          if (ms2) m.set_index = ms2[1];
+        }
+      }
+      return m;
+    }
     function normReading(item) {
       const content = item.content || '';
       const numRegex = /\b(\d{1,2})\b(?=\s)/g;
@@ -39,17 +105,85 @@ return {
       while ((m = optRegex.exec(content)) !== null) opts[m[1]] = m[2].trim();
       const optStart = content.search(/^A[\.\)、]/m);
       const passage = optStart > 0 ? content.slice(0, optStart).trim() : content;
-      const m2 = item.meta || {};
-      const id = (m2.year || 'x') + '_' + (m2.month || 'x') + '_' + (m2.set_index || m2.set || 'x') + '_' + (item.type || 'x').replace(/\s+/g, '_');
-      return { id, meta: m2, type: item.type, passage, questionNumbers: numbers, options: opts };
+      let m2 = item.meta || {};
+      m2 = patchMetaFromFilename(m2);
+      const type = normalizeReadingType(item.type);
+      const id = (m2.year || 'x') + '_' + (m2.month || 'x') + '_' + (m2.set_index || m2.set || 'x') + '_' + (type || 'x').replace(/\s+/g, '_');
+      return { id, meta: m2, type, passage, questionNumbers: numbers, options: opts };
     }
 
+    // Sanitize a listening answer map: keep only single A/B/C/D letters, drop everything else.
+    function sanitizeListeningAnswers(raw) {
+      const out = {};
+      if (!raw || typeof raw !== 'object') return out;
+      for (const qn of Object.keys(raw)) {
+        const v = String(raw[qn]).toUpperCase().trim().charAt(0);
+        if (v === 'A' || v === 'B' || v === 'C' || v === 'D') out[qn] = v;
+      }
+      return out;
+    }
+    // Compute the true question count from sections (more reliable than meta.total).
+    function countListeningQuestions(info) {
+      const secs = info && info.sections;
+      if (!secs) return 0;
+      let n = 0;
+      for (const sk of Object.keys(secs)) {
+        const qs = secs[sk] && secs[sk].questions;
+        if (Array.isArray(qs)) n += qs.length;
+      }
+      return n;
+    }
     function normListening(info, key) {
-      const mp3 = info.meta && info.meta.mp3_file;
+      // Detect & repair old-shape entries: no meta, answers inlined as top-level numeric keys.
+      let m = info.meta || null;
+      if (!m) {
+        const answers = {};
+        for (const k of Object.keys(info)) {
+          if (/^\d{1,2}$/.test(k)) answers[k] = info[k];
+        }
+        const parts = (key || '').split('_');
+        m = {
+          year: parts[0] || '?',
+          month: parts[1] || '?',
+          set_num: parts[2] || '?',
+          mp3_file: null,
+          has_mp3: false
+        };
+        info = Object.assign({}, info, { meta: m, answers: answers });
+      }
+      // Back-fill missing mp3_file from KNOWN_MP3S (e.g. 2023_03_1, 2022_06_1).
+      let mp3Restored = false;
+      if (!m.mp3_file && KNOWN_MP3S.has(key)) {
+        m.mp3_file = 'cet6_' + key + '.mp3';
+        m.has_mp3 = true;
+        mp3Restored = true;
+      }
+      // Sanitize upstream answers (drop garbage letters like E/F/G/...)
+      const cleanAnswers = sanitizeListeningAnswers(info.answers);
+      // Recompute total from sections (more accurate than meta.total).
+      const computedTotal = countListeningQuestions(info);
+      const total = computedTotal > 0 ? computedTotal : (info.total || 0);
+      // Apply authoritative overrides from Drhm1224 (highest priority).
+      const override = LISTENING_ANSWER_OVERRIDES[key];
+      let finalAnswers = cleanAnswers;
+      let overridden = 0;
+      if (override) {
+        finalAnswers = Object.assign({}, cleanAnswers);
+        for (const qn of Object.keys(override)) {
+          const before = finalAnswers[qn];
+          const after = override[qn];
+          if (before !== after) overridden++;
+          finalAnswers[qn] = after;
+        }
+      }
+      const mp3 = m && m.mp3_file;
       return {
-        key, meta: info.meta, answers: info.answers, total: info.total,
+        key, meta: m, answers: finalAnswers, total,
         sections: info.sections,
-        audioUrl: mp3 ? (DATA_REPO + '/CET-6%E5%90%AC%E5%8A%9B/' + mp3) : null
+        audioUrl: mp3 ? (DATA_REPO + '/CET-6%E5%90%AC%E5%8A%9B/' + mp3) : null,
+        _sanitized: cleanAnswers.length !== Object.keys(info.answers || {}).length,
+        _mp3Restored: mp3Restored,
+        _overridden: overridden
       };
     }
 
@@ -400,27 +534,43 @@ return {
             }
           }
           // Process reading + answers
+          let readingMatchedCount = 0, readingMissingCount = 0;
           for (const item of rawReading) {
             const r = normReading(item);
             readings.push(r);
-            const m2 = item.meta || {};
-            const setKey = m2.year + '_' + String(m2.month).padStart(2, '0') + '_' + m2.set_index;
+            const m2 = r.meta || {}; // already patched in normReading
+            const monthPad = String(m2.month || '').padStart(2, '0');
+            const setKey = m2.year + '_' + monthPad + '_' + m2.set_index;
             const ans = answerRaw[setKey];
             if (ans && ans.answers) {
-              const secAns = ans.answers[item.type] || '';
+              // Use normalized r.type so 'Section C - Passage 1' → 'Section C1' matches answers.json
+              const secAns = ans.answers[r.type] || '';
               const cleaned = secAns.replace(/[^A-Z]/g, '');
-              if (cleaned) answers[r.id] = cleaned;
+              if (cleaned) { answers[r.id] = cleaned; readingMatchedCount++; }
+              else readingMissingCount++;
+            } else {
+              readingMissingCount++;
             }
           }
           // Process listening
+          let listeningSanitizedCount = 0, listeningMp3RestoredCount = 0, listeningOverriddenCount = 0;
           for (const k of Object.keys(listeningRaw)) {
-            listenings[k] = normListening(listeningRaw[k], k);
+            const normed = normListening(listeningRaw[k], k);
+            listenings[k] = normed;
+            if (normed._sanitized) listeningSanitizedCount++;
+            if (normed._mp3Restored) listeningMp3RestoredCount++;
+            if (normed._overridden) listeningOverriddenCount++;
           }
           dataStatus.vocabCount = vocabList.length;
           dataStatus.readingCount = readings.length;
           dataStatus.listeningCount = Object.keys(listenings).length;
+          dataStatus.readingMatchedCount = readingMatchedCount;
+          dataStatus.readingMissingCount = readingMissingCount;
+          dataStatus.listeningSanitizedCount = listeningSanitizedCount;
+          dataStatus.listeningMp3RestoredCount = listeningMp3RestoredCount;
+          dataStatus.listeningOverriddenCount = listeningOverriddenCount;
           dataStatus.loaded = true;
-          console.log('[cet6] Data ready: ' + dataStatus.vocabCount + ' words, ' + dataStatus.readingCount + ' readings, ' + dataStatus.listeningCount + ' listenings');
+          console.log('[cet6] Data ready: ' + dataStatus.vocabCount + ' words, ' + dataStatus.readingCount + ' readings (' + readingMatchedCount + ' matched, ' + readingMissingCount + ' missing), ' + dataStatus.listeningCount + ' listenings (' + listeningSanitizedCount + ' sanitized, ' + listeningMp3RestoredCount + ' mp3-restored, ' + listeningOverriddenCount + ' overridden)');
           try { await saveDataCache(); } catch (e) { console.error('[cet6] cache save:', e); }
         } catch (e) {
           dataStatus.error = String(e && e.message || e);
